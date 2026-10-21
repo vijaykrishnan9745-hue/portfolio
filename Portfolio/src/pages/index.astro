@@ -1,0 +1,134 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Closing from '../components/Closing.astro';
+import site from '../content/site.json';
+import about from '../content/about.json';
+import garden from '../content/garden.json';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const words = (s) => s.split(' ');
+---
+<Base>
+  <Header />
+  <main id="main" tabindex="-1">
+    <section class="hero" id="top" aria-label="Introduction">
+      <div class="waves" data-waves="hero" aria-hidden="true"><canvas></canvas></div>
+      <div class="hero__stage">
+        <h1 class="hero__title" aria-label={`${site.titleLine1} ${site.titleLine2}`}>
+          {[site.titleLine1, site.titleLine2].map((line, side) => {
+            const parts = line.split(' ');
+            const rows = [parts[0], parts.slice(1).join(' ')].filter(Boolean);
+            let n = side * 14;
+            return (
+              <span class="hero__half" aria-hidden="true">
+                {rows.map((row) => (
+                  <span class="ln">
+                    {row.split(' ').map((w) => (
+                      <span class="w">{[...w].map((c) => <span class="ch" style={`--n:${n++}`}>{c}</span>)}</span>
+                    ))}
+                  </span>
+                ))}
+              </span>
+            );
+          })}
+        </h1>
+        <figure class="hero__fig" id="hero-fig">
+          <img src={site.heroImage} alt={`${site.name}, ${site.role}, holding a glowing sphere`} width="1639" height="960" fetchpriority="high" />
+          <div class="sphere" id="sphere" style="--frac:0.6119">
+            <div class="sphere__bed" aria-hidden="true"></div>
+            <div class="sphere__body"></div>
+            <span class="sphere__ring" aria-hidden="true"></span>
+            <div class="sphere__hit" role="button" tabindex="0" aria-label="Glowing sphere. Hold to charge it, drag to turn it." data-cursor="Hold me"></div>
+          </div>
+        </figure>
+      </div>
+      <div class="hero__foot">
+        <p class="hero__fact">{site.heroFact}</p>
+        <div class="hero__badge" aria-hidden="true">{site.name}</div>
+        <div class="hero__actions">
+          <a class="btn btn--glow" href="#works" data-magnet>See my work</a>
+          <a class="btn btn--ring" href="#contacts" data-magnet>Get in touch</a>
+        </div>
+      </div>
+      <span class="hero__scroll" aria-hidden="true"></span>
+    </section>
+
+    <section id="works" class="works" aria-labelledby="works-h">
+      <div class="wrap">
+        <div class="works__head">
+          <h2 id="works-h" class="h2 reveal">{site.worksLabel}</h2>
+          <span class="works__count reveal">{projects.length} case studies</span>
+        </div>
+        <div class="works__grid">
+          {projects.map((p) => (
+            <article class="case" data-case>
+              <a class="case__link" href={`/projects/${p.id}`} data-cursor="Open case study" aria-label={`${p.data.title}, case study`}>
+                <div class="case__img"><img src={p.data.cover} alt="" loading="lazy" width="1200" height="900" /></div>
+                <div class="case__body">
+                  <p class="case__meta">{p.data.tags}</p>
+                  <h3 class="case__title">{p.data.title}</h3>
+                  <p class="case__desc">{p.data.summary}</p>
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="about" aria-labelledby="about-h">
+      <div class="wrap about__in">
+        <div>
+          <p class="label reveal">{about.label}</p>
+          <h2 id="about-h" class="h2 reveal">{about.titleLine1}<br /><em>{about.titleLine2}</em></h2>
+          {about.paragraphs.map((t) => <p class="about__body reveal">{t}</p>)}
+          <div class="tl" id="tl">
+            <span class="tl__bar" aria-hidden="true"></span>
+            {about.timeline.map((t) => (
+              <div class="tl__item">
+                <span class="tl__dot" aria-hidden="true"></span>
+                <span class="tl__year">{t.year}</span>
+                <span class="tl__role">{t.role}</span>
+                <span class="tl__note">{t.note}</span>
+              </div>
+            ))}
+          </div>
+          <a class="about__link" href={about.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+        </div>
+        <div class="carousel" id="carousel" role="region" aria-label="Personal photos">
+          <div class="carousel__vp">
+            {about.gallery.map((g) => <div class="carousel__slide"><img src={g.image} alt={g.alt} loading="lazy" /></div>)}
+          </div>
+          <div class="carousel__dots">
+            {about.gallery.map((g, i) => <button type="button" class={`carousel__dot${i === 0 ? ' is-active' : ''}`} aria-label={`Photo ${i + 1}`}></button>)}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="garden" aria-labelledby="garden-h">
+      <div class="wrap">
+        <div class="garden__hd">
+          <div>
+            <p class="label">{garden.label}</p>
+            <h2 id="garden-h" class="h2">{garden.title}</h2>
+          </div>
+          <p class="garden__hint" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11.5v-2a1.5 1.5 0 0 1 3 0V12m0-1.5a1.5 1.5 0 0 1 3 0V12m0-.5a1.5 1.5 0 0 1 3 0V16a6 6 0 0 1-6 6h-2a6 6 0 0 1-4.5-2L4 15a1.5 1.5 0 0 1 2.3-1.9L8 15"/></svg>
+            {garden.hint}
+          </p>
+        </div>
+        <div class="board" id="board" aria-label="Draggable design pieces">
+          {garden.items.map((g) => (
+            <div class="gcard" data-src={g.image} data-alt={g.title} role="button" tabindex="0" aria-label={`${g.title}, drag or press Enter to enlarge`}>
+              <img src={g.image} alt={g.title} loading="lazy" draggable="false" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+  <Closing />
+</Base>
